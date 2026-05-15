@@ -1,0 +1,67 @@
+name: release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        shell: pwsh
+        run: dotnet restore .\KatLedger.csproj --nologo
+
+      - name: Build
+        shell: pwsh
+        run: dotnet build .\KatLedger.csproj -c Release --no-restore --nologo
+
+      - name: Self-test
+        shell: pwsh
+        run: dotnet run --project .\KatLedger.csproj -c Release --no-build -- --self-test
+
+      - name: Publish win-x64 artifact
+        shell: pwsh
+        run: |
+          $version = if ('${{ github.ref_type }}' -eq 'tag') { '${{ github.ref_name }}'.TrimStart('v') } else { '0.1.0-dev' }
+          .\scripts\publish-win-x64.ps1 -Version $version | Format-List
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KatLedger-win-x64
+          path: artifacts\KatLedger-win-x64.zip
+          if-no-files-found: error
+
+      - name: Publish GitHub release asset
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $asset = 'artifacts\KatLedger-win-x64.zip'
+          $title = "KatLedger $tag"
+          $notes = 'Windows x64 release artifact for KatLedger.'
+
+          gh release view $tag --repo ${{ github.repository }} *> $null
+          if ($LASTEXITCODE -eq 0) {
+              gh release upload $tag $asset --repo ${{ github.repository }} --clobber
+          }
+          else {
+              gh release create $tag $asset --repo ${{ github.repository }} --title $title --notes $notes
+          }
