@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,12 +19,6 @@ internal static class Program
                 return 0;
             }
 
-            JsonSerializerOptions serializerOptions = new()
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            };
-
             HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
@@ -35,7 +27,7 @@ internal static class Program
             builder.Services
                 .AddMcpServer()
                 .WithStdioServerTransport()
-                .WithToolsFromAssembly(typeof(Program).Assembly, serializerOptions);
+                .WithToolsFromAssembly(typeof(Program).Assembly);
 
             await builder.Build().RunAsync();
             return 0;

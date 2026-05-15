@@ -37,7 +37,7 @@ jobs:
       - name: Publish win-x64 artifact
         shell: pwsh
         run: |
-          $version = if ('${{ github.ref_type }}' -eq 'tag') { '${{ github.ref_name }}'.TrimStart('v') } else { '0.2.0-dev' }
+          $version = if ('${{ github.ref_type }}' -eq 'tag') { '${{ github.ref_name }}'.TrimStart('v') } else { '0.2.1-dev' }
           .\scripts\publish-win-x64.ps1 -Version $version | Format-List
 
       - name: Upload workflow artifact

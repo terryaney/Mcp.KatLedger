@@ -9,7 +9,7 @@ namespace KatLedger;
 public static class KatLedgerTools
 {
     [McpServerTool(
-        Name = "kat/ledger/execute",
+        Name = "execute",
         Title = "Execute SQLite statement",
         ReadOnly = false,
         Destructive = false,
@@ -24,7 +24,7 @@ public static class KatLedgerTools
     }
 
     [McpServerTool(
-        Name = "kat/ledger/query",
+        Name = "query",
         Title = "Query SQLite rows",
         ReadOnly = true,
         Destructive = false,
@@ -41,7 +41,7 @@ public static class KatLedgerTools
     }
 
     [McpServerTool(
-        Name = "kat/ledger/query_one",
+        Name = "query_one",
         Title = "Query one SQLite row",
         ReadOnly = true,
         Destructive = false,

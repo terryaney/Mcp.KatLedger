@@ -5,7 +5,7 @@ KatLedger is a Windows-friendly stdio MCP server that exposes a generic local SQ
 ## Repository assumptions
 
 - Public repository: `terryaney/Mcp.KatLedger`
-- Current release tag example: `v0.2.0`
+- Current release tag example: `v0.2.1`
 - Windows release asset: `KatLedger-win-x64.zip`
 
 ## Runtime contract
@@ -48,7 +48,7 @@ dotnet run --project .\KatLedger.csproj -c Release -- --self-test
 ## Publish a Windows release artifact
 
 ```powershell
-.\scripts\publish-win-x64.ps1 -Version 0.2.0
+.\scripts\publish-win-x64.ps1 -Version 0.2.1
 ```
 
 Expected output:
