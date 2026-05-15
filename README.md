@@ -1,11 +1,11 @@
 # Mcp.KatLedger
 
-KatLedger is a Windows-friendly stdio MCP server for KAT verification ledger operations.
+KatLedger is a Windows-friendly stdio MCP server that exposes a generic local SQLite tool surface over `%USERPROFILE%\.kat\KatLedger\KatLedger.db`.
 
 ## Repository assumptions
 
 - Public repository: `terryaney/Mcp.KatLedger`
-- Initial release tag: `v0.1.0`
+- Current release tag example: `v0.2.0`
 - Windows release asset: `KatLedger-win-x64.zip`
 
 ## Runtime contract
@@ -14,21 +14,29 @@ KatLedger is a Windows-friendly stdio MCP server for KAT verification ledger ope
 - Canonical install folder is `%USERPROFILE%\.kat\KatLedger\`
 - Canonical database path is `%USERPROFILE%\.kat\KatLedger\KatLedger.db`
 - The published executable expected by client installers is `%USERPROFILE%\.kat\KatLedger\KatLedger.exe`
-
-The server bootstraps its SQLite schema on startup and creates:
-
-- `anvil_checks`
-- supporting indexes
-- `PRAGMA user_version = 1`
+- The server does not bootstrap an application schema; callers own their tables and SQL
 
 ## Tools
 
-- `kat/ledger/insert_check`
-- `kat/ledger/count_checks`
-- `kat/ledger/list_checks`
-- `kat/ledger/read_checks`
+- `kat/ledger/execute`
+  - Executes exactly one non-`SELECT` / non-`WITH` SQLite statement
+  - Returns `statementType`, `rowsAffected`, and `lastInsertRowId`
+- `kat/ledger/query`
+  - Executes exactly one `SELECT` or `WITH` statement
+  - Optional `limit` defaults to `50`, max `200`
+  - Returns `statementType`, `returned`, `limit`, `truncated`, `columns`, and `rows`
+- `kat/ledger/query_one`
+  - Executes exactly one `SELECT` or `WITH` statement
+  - Returns `statementType`, `found`, `multiple`, `columns`, and `row`
 
-All tool calls require both `workspace` and `task_id`.
+## Safety boundaries
+
+- `ATTACH` and `DETACH` are blocked
+- Multi-statement SQL is blocked
+- `execute` rejects `SELECT` and `WITH`
+- `query` and `query_one` reject non-`SELECT` / non-`WITH`
+- Row caps are enforced server-side regardless of caller SQL
+- No database path parameter is accepted; all tools target the canonical KatLedger database
 
 ## Local development
 
@@ -40,7 +48,7 @@ dotnet run --project .\KatLedger.csproj -c Release -- --self-test
 ## Publish a Windows release artifact
 
 ```powershell
-.\scripts\publish-win-x64.ps1 -Version 0.1.0
+.\scripts\publish-win-x64.ps1 -Version 0.2.0
 ```
 
 Expected output:
